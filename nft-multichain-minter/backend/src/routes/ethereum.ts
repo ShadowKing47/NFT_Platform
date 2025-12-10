@@ -4,6 +4,9 @@ import path from "path";
 import fs from "fs";
 import {uploadImageToIpfs, uploadMetadataToIpfs} from "../chains/ethereum/ipfs";
 import { buildErc721Metadata } from "../chains/ethereum/metadata";
+import { validateUpload } from "../middleware/validateUpload";
+import { validateMetadata } from "../middleware/validateMetadata";
+import { rateLimiterPerChain } from "../middleware/rateLimiterPerChain";
 
 const router = Router();
 
@@ -14,6 +17,9 @@ const upload = multer({
 router.post(
     "/prepare-mint",
     upload.single("file"),
+    validateUpload,
+    validateMetadata,
+    rateLimiterPerChain("ethereum"),
     async(req,res,next) => {
         try{
             const file = req.file;

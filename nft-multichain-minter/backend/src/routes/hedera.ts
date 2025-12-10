@@ -5,6 +5,9 @@ import fs from "fs";
 import { uploadImageToIpfs, uploadMetadataToIpfs } from "../chains/ethereum/ipfs"; from "../chains/hedera/ipfs";
 import { buildHederaMetadata} from "../chains/hedera/metadata";
 import {mintHederaNftToUser} from "../chains/hedera/mint";
+import { validateUpload } from "../middleware/validateUpload";
+import { validateMetadata } from "../middleware/validateMetadata";
+import { rateLimiterPerChain } from "../middleware/rateLimiterPerChain";
 
 const router = Router();
 
@@ -16,6 +19,9 @@ const upload = multer({
 router.post(
     "/mint",
     upload.single("file"),
+    validateUpload,
+    validateMetadata,
+    rateLimiterPerChain("hedera"),
     async(req,res,next) => {
         try { 
             const file = req.file;
