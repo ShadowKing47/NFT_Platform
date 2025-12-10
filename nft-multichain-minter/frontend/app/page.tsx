@@ -1,19 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "../hooks/useAuth";
 import { useUploadAndPrepare } from "../hooks/useUploadAndPrepare";
 import { useEthereumMint } from "../hooks/useEthereumMint";
 import { useHederaMint } from "../hooks/useHederaMint";
 import { ToastProvider, useToast } from "../components/ToastProvider";
-import WalletAuthButton from "../components/WalletAuthButton";
-import ChainSelector from "../components/ChainSelector";
-import UploadDropzone from "../components/UploadDropzone";
-import MetadataForm from "../components/MetadataForm";
-import NftPreview from "../components/NftPreview";
-import ProgressSteps from "../components/ProgressSteps";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 import LoadingSpinner from "../components/LoadingSpinner";
-import MintSuccess from "../components/MintSuccess";
 
 // NFT Contract ABI (minimal - just mintTo function)
 const NFT_CONTRACT_ABI = [
@@ -30,7 +27,8 @@ const NFT_CONTRACT_ABI = [
 ];
 
 function MintPageContent() {
-  const { isLoggedIn, walletAddress, chain } = useAuth();
+  const router = useRouter();
+  const { isLoggedIn, walletAddress, chain, loginEthereum, loginHedera } = useAuth();
   const { showToast } = useToast();
 
   const [selectedChain, setSelectedChain] = useState<"ethereum" | "hedera">("ethereum");
