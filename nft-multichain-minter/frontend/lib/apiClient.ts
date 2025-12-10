@@ -72,3 +72,12 @@ export const hederaAPI = {
       headers: { "Content-Type": "multipart/form-data" },
     }),
 };
+
+export const nftAPI = {
+  getDetails: (chain: string, tokenId: string, serialNumber?: string) => {
+    const url = serialNumber 
+      ? `/api/nft/${chain}/${tokenId}/${serialNumber}`
+      : `/api/nft/${chain}/${tokenId}`;
+    return apiClient.get(url);
+  },
+};
