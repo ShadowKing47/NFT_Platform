@@ -1,12 +1,15 @@
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
 import ethRoutes from "./routes/ethereum";
 import hederaRoutes from "./routes/hedera";
 import nftRoutes from "./routes/nft";
+import nonceRoutes from "./routes/auth/nonce";
+import authRoutes from "./routes/auth/verify";
+import healthRoutes from "./routes/health";
 import { jwtMiddleware } from "./auth/jwtMiddleware";
-
-// ...
-
+import globalLimiter from "./rateLimiters/globalLimiter";
+import { errorHandler } from "./utils/errors";
 
 const app = express();
 
@@ -26,8 +29,8 @@ app.use("/api/hedera", jwtMiddleware, hederaRoutes);
 // NFT details routes - public
 app.use("/api/nft", nftRoutes);
 
-// Health
-app.get("/api/health", (req, res) => res.json({ status: "ok" }));
+// Health check
+app.use("/api/health", healthRoutes);
 
 app.use(errorHandler);
 
