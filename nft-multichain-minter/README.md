@@ -27,7 +27,7 @@ nft-multichain-minter/
 
 ## Features Implemented
 
-### Backend Features ✅
+### Backend Features 
 
 1. **JWT Authentication Middleware**
    - Protects all `/api/eth/*` and `/api/hedera/*` routes
@@ -53,7 +53,7 @@ nft-multichain-minter/
    - Graceful shutdown handling
    - Comprehensive logging
 
-### Frontend Features ✅
+### Frontend Features 
 
 1. **Authentication System**
    - **MetaMask Integration**: EIP-191 message signing
