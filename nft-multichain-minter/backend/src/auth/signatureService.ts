@@ -1,6 +1,6 @@
-import {ethers} from "ether";
+import {ethers} from "ethers";
 
-export function verifyEthreumSignature(message: string, signature:string){
+export function verifyEthereumSignature(message: string, signature:string){
     const recovered = ethers.verifyMessage(message,signature);
     return recovered.toLowerCase();
 }

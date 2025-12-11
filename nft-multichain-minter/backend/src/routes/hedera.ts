@@ -2,7 +2,7 @@ import {Router} from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { uploadImageToIpfs, uploadMetadataToIpfs } from "../chains/ethereum/ipfs"; from "../chains/hedera/ipfs";
+import { uploadImageToIpfs, uploadMetadataToIpfs } from "../chains/hedera/ipfs";
 import { buildHederaMetadata} from "../chains/hedera/metadata";
 import {mintHederaNftToUser} from "../chains/hedera/mint";
 import { validateUpload } from "../middleware/validateUpload";
@@ -12,8 +12,7 @@ import { rateLimiterPerChain } from "../middleware/rateLimiterPerChain";
 const router = Router();
 
 const upload = multer({
-    dest: path.join(__dirname,"..","..,"..","tmp","uploads"),
-
+    dest: path.join(__dirname,"..","..","..","tmp","uploads"),
 });
 
 router.post(
@@ -30,15 +29,13 @@ router.post(
             if(!file){
                 return res.status(400).json({error: "File is required"});
             }
-            if(!name || !description || userAccountId){
-                return res  
-                    .status(400)
-                    .json({error: "Name, description and userAccountId are required"});
+            if(!name || !description || !userAccountId){
+                return res.status(400).json({error: "Name, description and userAccountId are required"});
             }
 
             const localFilePath = file.path;
 
-            const imageIpfsUri = await uploadUmageToIpfs(localFilePath);
+            const imageIpfsUri = await uploadImageToIpfs(localFilePath);
 
             let parsedAttributes: any[] = [];
             if (attributes) {

@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useUploadAndPrepare } from "@/hooks/useUploadAndPrepare";
 import { useEthereumMint } from "@/hooks/useEthereumMint";
 import { useHederaMint } from "@/hooks/useHederaMint";
-import { useToast } from "@/components/ToastProvider";
+import { ToastProvider, useToast } from "@/components/ToastProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -31,7 +31,7 @@ interface Attribute {
   value: string;
 }
 
-export default function CreateNFTPage() {
+function CreateNFTPageContent() {
   const router = useRouter();
   const { isLoggedIn, walletAddress, chain } = useAuth();
   const { showToast } = useToast();
@@ -686,5 +686,13 @@ export default function CreateNFTPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function CreateNFTPage() {
+  return (
+    <ToastProvider>
+      <CreateNFTPageContent />
+    </ToastProvider>
   );
 }

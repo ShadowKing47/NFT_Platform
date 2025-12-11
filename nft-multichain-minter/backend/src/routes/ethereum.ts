@@ -23,7 +23,7 @@ router.post(
     async(req,res,next) => {
         try{
             const file = req.file;
-            const {name,description, walletAddress, attriutes} = req.body;
+            const {name,description, walletAddress, attributes} = req.body;
              if(!file) {
                 return res.status(400).json({error: "File is required"});
              }
@@ -36,10 +36,10 @@ router.post(
 
              const imageIpfsUri = await uploadImageToIpfs(localFilePath);
 
-             let parsdAttributes: any[] = [];
+             let parsedAttributes: any[] = [];
              if(attributes){
                 try{
-                    parsdAttributes = JSON.parse(attributes);
+                    parsedAttributes = JSON.parse(attributes);
                 }catch{
 
                 }
@@ -49,15 +49,15 @@ router.post(
                 name,
                 description,
                 imageIpfsUri,
-                connectWallet: walletAddress
-                attriutes: parsdAttributes,
+                creatorWallet: walletAddress,
+                attributes: parsedAttributes,
                 externalUrl: undefined,
              });
 
-             const tokenUri = await uploadMetadataTOIpfs(metadata);
+             const tokenUri = await uploadMetadataToIpfs(metadata);
 
              return res.json({
-                sucess: true,
+                success: true,
                 tokenUri,
                 imageIpfsUri,
                 metadata,
