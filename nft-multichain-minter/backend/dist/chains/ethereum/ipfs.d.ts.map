@@ -1,0 +1,1 @@
+{"version":3,"file":"ipfs.d.ts","sourceRoot":"","sources":["../../../src/chains/ethereum/ipfs.ts"],"names":[],"mappings":"AAgBA;;GAEG;AACH,wBAAsB,iBAAiB,CAAC,QAAQ,EAAE,MAAM,GAAG,OAAO,CAAC,MAAM,CAAC,CA+BzE;AAED;;GAEG;AACH,wBAAsB,oBAAoB,CAAC,QAAQ,EAAE,GAAG,GAAG,OAAO,CAAC,MAAM,CAAC,CAkCzE;AAED;;GAEG;AACH,wBAAgB,UAAU,CAAC,OAAO,EAAE,MAAM,GAAG,MAAM,CAMlD"}

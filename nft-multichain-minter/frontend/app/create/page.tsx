@@ -33,9 +33,9 @@ interface Attribute {
 
 function CreateNFTPageContent() {
   const router = useRouter();
-  const { isLoggedIn, walletAddress, chain } = useAuth();
+  const { isLoggedIn, isInitializing, walletAddress, chain } = useAuth();
   const { showToast } = useToast();
-
+  
   const [selectedChain, setSelectedChain] = useState<"ethereum" | "hedera">("ethereum");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
@@ -55,12 +55,15 @@ function CreateNFTPageContent() {
   const ethereumMintHook = useEthereumMint();
   const hederaMintHook = useHederaMint();
 
+  // Auth redirect effect
   useEffect(() => {
-    if (!isLoggedIn) {
-      router.push("/login");
+    // Only redirect after initialization is complete
+    if (!isInitializing && !isLoggedIn) {
+      router.push("/login?redirect=/create");
     }
-  }, [isLoggedIn, router]);
+  }, [isLoggedIn, isInitializing, router]);
 
+  // File preview effect
   useEffect(() => {
     if (selectedFile) {
       const url = URL.createObjectURL(selectedFile);
@@ -70,6 +73,18 @@ function CreateNFTPageContent() {
       setPreviewUrl("");
     }
   }, [selectedFile]);
+
+  // Show loading spinner while initializing auth - AFTER all hooks
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 dark:from-gray-900 dark:to-purple-900">
+        <div className="text-center">
+          <LoadingSpinner />
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -174,7 +189,22 @@ function CreateNFTPageContent() {
       setMintState("success");
     } catch (error: any) {
       console.error("Mint error:", error);
-      showToast(error.message || "Minting failed", "error");
+      
+      // Provide user-friendly error messages
+      let errorMessage = error.message || "Minting failed";
+      
+      // Check for NFT.Storage API key issues
+      if (errorMessage.includes("NFT.Storage API key") || errorMessage.includes("nft.storage")) {
+        errorMessage = "⚠️ Server Configuration Required: The NFT.Storage API key is not configured on the server. Please contact the administrator to set up IPFS storage. See backend/SETUP_GUIDE.md for instructions.";
+      } else if (errorMessage.includes("Invalid NFT.Storage")) {
+        errorMessage = "⚠️ Invalid API Key: The NFT.Storage API key on the server is invalid. Please contact the administrator.";
+      } else if (errorMessage.includes("Network error") || errorMessage.includes("Unable to connect")) {
+        errorMessage = "❌ Network Error: Unable to connect to IPFS storage. Please check your internet connection and try again.";
+      } else if (errorMessage.includes("Unauthorized") || errorMessage.includes("401")) {
+        errorMessage = "⚠️ Authentication Error: The server's NFT.Storage credentials are invalid. Please contact the administrator.";
+      }
+      
+      showToast(errorMessage, "error");
       setMintState("idle");
     }
   };

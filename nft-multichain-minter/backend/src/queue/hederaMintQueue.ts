@@ -17,7 +17,7 @@ export interface HederaMintResult {
 /**
  * Queue for Hedera NFT minting operations
  */
-export const hederaMintQueue = new Queue<HederaMintJob>("hedera-mint", {
+export const hederaMintQueue = new Queue<HederaMintJob>("hederaMintQueue", {
     connection: redisConnection,
     defaultJobOptions: {
         attempts: 3,
@@ -27,7 +27,6 @@ export const hederaMintQueue = new Queue<HederaMintJob>("hedera-mint", {
         },
         removeOnComplete: 100,
         removeOnFail: 50,
-        timeout: 60000, // 60 second timeout for mint operations
     },
 });
 

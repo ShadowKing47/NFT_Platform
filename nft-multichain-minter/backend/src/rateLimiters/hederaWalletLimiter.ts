@@ -21,7 +21,10 @@ export async function hederaWalletLimiter(
             return next();
         }
         
-        const key = `hedera:ratelimit:${walletAddress}`;
+        // Normalize Hedera account ID (remove extra spaces, standardize format)
+        const normalizedAddress = walletAddress.trim();
+        
+        const key = `hedera:ratelimit:${normalizedAddress}`;
         
         // Get current count
         const current = await redisClient.get(key);
@@ -48,7 +51,7 @@ export async function hederaWalletLimiter(
         
         next();
     } catch (error) {
-        logger.error("Hedera wallet rate limiter error:", error);
+        logger.error({ err: error }, "Hedera wallet rate limiter error");
         next(); // Fail open on error
     }
 }

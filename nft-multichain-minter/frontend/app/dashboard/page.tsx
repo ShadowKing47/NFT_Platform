@@ -10,7 +10,7 @@ import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { isLoggedIn, walletAddress, chain } = useAuth();
+  const { isLoggedIn, walletAddress, chain, isInitializing } = useAuth();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"owned" | "created" | "activity">("owned");
 
@@ -72,14 +72,15 @@ export default function DashboardPage() {
   ]);
 
   useEffect(() => {
-    if (!isLoggedIn) {
-      router.push("/login");
-    } else {
+    // Only redirect after initialization is complete
+    if (!isInitializing && !isLoggedIn) {
+      router.push("/login?redirect=/dashboard");
+    } else if (!isInitializing && isLoggedIn) {
       setLoading(false);
     }
-  }, [isLoggedIn, router]);
+  }, [isLoggedIn, isInitializing, router]);
 
-  if (loading || !isLoggedIn) {
+  if (loading || isInitializing || !isLoggedIn) {
     return (
       <div className="min-h-screen bg-background-light dark:bg-background-dark font-display flex flex-col">
         <Header />

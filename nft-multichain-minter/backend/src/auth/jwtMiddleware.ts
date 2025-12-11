@@ -27,7 +27,7 @@ export const jwtMiddleware = (
 
     req.wallet = decoded.wallet;
 
-    next();
+    return next();
   } catch (err) {
     return res.status(401).json({ error: "Unauthorized" });
   }

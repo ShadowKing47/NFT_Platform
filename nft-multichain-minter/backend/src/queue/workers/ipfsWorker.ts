@@ -1,7 +1,8 @@
 import { Worker } from "bullmq";
-import { ipfsQueue } from "../bullmq";
 import { redisConnection } from "../../config/redis";
 import logger from "../../utils/logger";
+import { uploadImageToIpfs as uploadImageToIpfsEth } from "../../chains/ethereum/ipfs";
+import { uploadImageToIpfs as uploadImageToIpfsHedera } from "../../chains/hedera/ipfs";
 
 export const ipfsWorker = new Worker(
   "ipfsQueue",
@@ -11,20 +12,22 @@ export const ipfsWorker = new Worker(
     try {
       const { filePath, chain } = job.data;
 
-      // TODO: Call uploadImageToIpfs based on chain
-      // import { uploadImageToIpfs } from "../../chains/ethereum/ipfs";
-      // or
-      // import { uploadImageToIpfs } from "../../chains/hedera/ipfs";
+      // Select appropriate upload function based on chain
+      let ipfsUri: string;
       
-      logger.info({ filePath, chain }, "IPFS upload job data received");
+      if (chain === "ethereum") {
+        ipfsUri = await uploadImageToIpfsEth(filePath);
+        logger.info({ jobId: job.id, chain: "ethereum", ipfsUri }, "Ethereum IPFS upload completed");
+      } else if (chain === "hedera") {
+        ipfsUri = await uploadImageToIpfsHedera(filePath);
+        logger.info({ jobId: job.id, chain: "hedera", ipfsUri }, "Hedera IPFS upload completed");
+      } else {
+        throw new Error(`Unsupported chain: ${chain}`);
+      }
 
-      // Stub: const ipfsUri = await uploadImageToIpfs(filePath);
-
-      logger.info({ jobId: job.id }, "IPFS upload job completed");
-
-      return { success: true, ipfsUri: "ipfs://stub" };
-    } catch (error) {
-      logger.error({ jobId: job.id, error }, "IPFS upload job failed");
+      return { success: true, ipfsUri };
+    } catch (error: any) {
+      logger.error({ jobId: job.id, error: error.message }, "IPFS upload job failed");
       throw error;
     }
   },

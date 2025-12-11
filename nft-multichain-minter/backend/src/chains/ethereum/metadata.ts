@@ -26,7 +26,7 @@ export interface BuildERC721MetadataParams {
     description: string;
     imageIpfsUri: string;
     creatorWallet?: string;
-    attributes?: Array<{ trait_type: string; value: string }>;
+    attributes?: Array<{ trait_type: string; value: string | number }>;
     externalUrl?: string;
 }
 

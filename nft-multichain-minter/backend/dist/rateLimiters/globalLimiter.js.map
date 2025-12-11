@@ -1,0 +1,1 @@
+{"version":3,"file":"globalLimiter.js","sourceRoot":"","sources":["../../src/rateLimiters/globalLimiter.ts"],"names":[],"mappings":";;;;;AAAA,4EAA2C;AAE3C,MAAM,aAAa,GAAG,IAAA,4BAAS,EAAC;IAC5B,QAAQ,EAAE,EAAE,GAAE,IAAI;IAClB,GAAG,EAAE,EAAE;IACP,OAAO,EAAC,EAAC,KAAK,EAAE,mCAAmC,EAAC;CACvD,CAAC,CAAC;AAEH,kBAAe,aAAa,CAAC"}

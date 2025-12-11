@@ -43,7 +43,7 @@ export const rateLimiterPerChain = (chain: "ethereum" | "hedera") => {
         });
       }
 
-      next();
+      return next();
     } catch (err) {
       logger.error({ err }, "Rate limiter error");
       next();

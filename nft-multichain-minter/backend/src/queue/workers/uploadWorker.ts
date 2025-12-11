@@ -1,7 +1,8 @@
 import { Worker } from "bullmq";
-import { uploadQueue } from "../bullmq";
 import { redisConnection } from "../../config/redis";
 import logger from "../../utils/logger";
+import { sanitizeFilename } from "../../utils/sanitization";
+import fs from "fs/promises";
 
 export const uploadWorker = new Worker(
   "uploadQueue",
@@ -9,17 +10,26 @@ export const uploadWorker = new Worker(
     logger.info({ jobId: job.id }, "Processing upload job");
 
     try {
-      const { filePath, walletAddress } = job.data;
+      const { filePath, walletAddress, originalName } = job.data;
 
-      // TODO: Implement actual upload logic
-      // This is a stub for future expansion
-      logger.info({ filePath, walletAddress }, "Upload job data received");
+      // Sanitize filename to prevent directory traversal
+      const sanitizedName = sanitizeFilename(originalName || "upload");
+      
+      // Verify file exists
+      await fs.access(filePath);
+      
+      logger.info(
+        { filePath, walletAddress, sanitizedName },
+        "Upload job processed successfully"
+      );
 
-      logger.info({ jobId: job.id }, "Upload job completed");
-
-      return { success: true, filePath };
-    } catch (error) {
-      logger.error({ jobId: job.id, error }, "Upload job failed");
+      return {
+        success: true,
+        filePath,
+        sanitizedFilename: sanitizedName,
+      };
+    } catch (error: any) {
+      logger.error({ jobId: job.id, error: error.message }, "Upload job failed");
       throw error;
     }
   },

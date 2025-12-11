@@ -10,16 +10,9 @@ export async function signMessageEthereum(
 
 export async function signMessageHedera(
   message: string,
-  accountId: string,
-  hashconnect: any
+  hederaWallet: any
 ): Promise<string> {
-  // HashPack message signing
-  const messageBytes = new TextEncoder().encode(message);
-  
-  const signResult = await hashconnect.sign(
-    accountId,
-    messageBytes
-  );
-  
-  return signResult.signature;
+  // Sign using WalletConnect
+  const signature = await hederaWallet.signMessage(message);
+  return signature;
 }

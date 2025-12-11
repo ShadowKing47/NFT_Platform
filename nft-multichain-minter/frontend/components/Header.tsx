@@ -1,10 +1,47 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect, useRef } from "react";
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { isLoggedIn, walletAddress, logout, isInitializing } = useAuth();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleConnect = () => {
+    router.push("/login");
+  };
+
+  const handleLogout = () => {
+    logout();
+    setShowProfileMenu(false);
+    router.push("/");
+  };
+
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    if (showProfileMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showProfileMenu]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border-light dark:border-border-dark bg-surface-light/95 dark:bg-surface-dark/95 backdrop-blur-md px-6 py-4">
@@ -75,12 +112,68 @@ export default function Header() {
             <button className="p-2 rounded-lg text-text-main-light dark:text-white hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
               <span className="material-symbols-outlined">notifications</span>
             </button>
-            <button className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-5 rounded-lg transition-all shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-sm">
-                account_balance_wallet
-              </span>
-              <span>Connect</span>
-            </button>
+            
+            {/* Wallet Connection Button */}
+            {!isInitializing && (
+              <>
+                {isLoggedIn && walletAddress ? (
+                  <div className="relative" ref={dropdownRef}>
+                    <button 
+                      onClick={() => setShowProfileMenu(!showProfileMenu)}
+                      className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-5 rounded-lg transition-all shadow-lg shadow-primary/20"
+                    >
+                      <span className="material-symbols-outlined text-sm">
+                        account_balance_wallet
+                      </span>
+                      <span>{formatAddress(walletAddress)}</span>
+                    </button>
+                    
+                    {/* Profile Dropdown */}
+                    {showProfileMenu && (
+                      <div className="absolute right-0 mt-2 w-56 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg shadow-xl overflow-hidden z-50">
+                        <div className="p-3 border-b border-border-light dark:border-border-dark">
+                          <p className="text-xs text-text-sec-light dark:text-text-sec-dark">Connected Wallet</p>
+                          <p className="text-sm font-mono text-text-main-light dark:text-white mt-1">{formatAddress(walletAddress)}</p>
+                        </div>
+                        <Link
+                          href="/create"
+                          onClick={() => setShowProfileMenu(false)}
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-black/5 dark:hover:bg-white/10 text-text-main-light dark:text-white transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-lg">add_circle</span>
+                          <span>Create NFT</span>
+                        </Link>
+                        <Link
+                          href="/dashboard"
+                          onClick={() => setShowProfileMenu(false)}
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-black/5 dark:hover:bg-white/10 text-text-main-light dark:text-white transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-lg">dashboard</span>
+                          <span>Dashboard</span>
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-500/10 text-red-500 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-lg">logout</span>
+                          <span>Disconnect</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <button 
+                    onClick={handleConnect}
+                    className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-5 rounded-lg transition-all shadow-lg shadow-primary/20"
+                  >
+                    <span className="material-symbols-outlined text-sm">
+                      account_balance_wallet
+                    </span>
+                    <span>Connect</span>
+                  </button>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -31,7 +31,7 @@ export interface BuildHederaMetadataParams {
     imageIpfsUri: string;
     creatorWallet?: string;
     userAccountId?: string;
-    attributes?: Array<{ trait_type: string; value: string }>;
+    attributes?: Array<{ trait_type: string; value: string | number }>;
     format?: string;
 }
 

@@ -25,16 +25,3 @@ export default function HomePage() {
   );
 }
 
-        )}
-      </div>
-    </div>
-  );
-}
-
-export default function HomePage() {
-  return (
-    <ToastProvider>
-      <MintPageContent />
-    </ToastProvider>
-  );
-}

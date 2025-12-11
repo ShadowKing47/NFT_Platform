@@ -1,30 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LoadingSpinner from "@/components/LoadingSpinner";
+import WalletConnectModal from "@/components/WalletConnectModal";
+import { hederaWallet } from "@/lib/hederaWallet";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { loginEthereum, loginHedera, isLoggedIn } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedChain, setSelectedChain] = useState<"ethereum" | "hedera">("ethereum");
+  const [wcUri, setWcUri] = useState<string | null>(null);
+
+  // Get redirect URL from query params or default to dashboard
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
+
+  // Set up WalletConnect URI callback
+  useEffect(() => {
+    hederaWallet.setUriCallback((uri: string) => {
+      setWcUri(uri);
+    });
+  }, []);
 
   // Redirect if already logged in
-  if (isLoggedIn) {
-    router.push("/");
-    return null;
-  }
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push(redirectTo);
+    }
+  }, [isLoggedIn, router, redirectTo]);
 
   const handleLogin = async (chain: "ethereum" | "hedera") => {
     try {
       setLoading(true);
       setError("");
+      setWcUri(null);
 
       if (chain === "ethereum") {
         await loginEthereum();
@@ -32,12 +48,18 @@ export default function LoginPage() {
         await loginHedera();
       }
 
-      router.push("/");
+      router.push(redirectTo);
     } catch (err: any) {
       setError(err.message || "Failed to connect wallet");
+      setWcUri(null);
     } finally {
       setLoading(false);
     }
+  };
+
+  const closeModal = () => {
+    setWcUri(null);
+    setLoading(false);
   };
 
   return (
@@ -209,6 +231,9 @@ export default function LoginPage() {
       </main>
 
       <Footer />
+      
+      {/* WalletConnect Modal */}
+      {wcUri && <WalletConnectModal uri={wcUri} onClose={closeModal} />}
     </div>
   );
 }

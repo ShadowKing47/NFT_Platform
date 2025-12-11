@@ -41,8 +41,7 @@ export async function mintHederaNftToUser(params: {
     const mintTx = await new TokenMintTransaction()
         .setTokenId(tokenId)
         .addMetadata(metadataBytes)
-        .freezeWith(client)
-        .sign(client._operatorPublicKey ? undefined as any : undefined);
+        .freezeWith(client);
 
     const mintTxSubmit = await mintTx.execute(client);
     const mintRx = await mintTxSubmit.getReceipt(client);

@@ -48,7 +48,7 @@ export async function ethWalletLimiter(
         
         next();
     } catch (error) {
-        logger.error("Ethereum wallet rate limiter error:", error);
+        logger.error({ err: error }, "Ethereum wallet rate limiter error");
         next(); // Fail open on error
     }
 }

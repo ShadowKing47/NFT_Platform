@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { AccountId, TokenId, TokenNftInfoQuery, NftId } from "@hashgraph/sdk";
+import { TokenId, TokenNftInfoQuery, NftId } from "@hashgraph/sdk";
 import axios from "axios";
 import { hederaClient } from "../chains/hedera/htsClient";
 import { ethers } from "ethers";
@@ -20,16 +20,18 @@ router.get("/hedera/:tokenId/:serialNumber?", async (req, res, next) => {
     const serial = serialNumber ? parseInt(serialNumber) : 1;
 
     // Get NFT info from Hedera
-    const nftInfo = await new TokenNftInfoQuery()
+    const nftInfoArray = await new TokenNftInfoQuery()
       .setNftId(new NftId(hederaTokenId, serial))
       .execute(hederaClient);
+    
+    const nftInfo = Array.isArray(nftInfoArray) ? nftInfoArray[0] : nftInfoArray;
 
     // Parse metadata from IPFS
     let metadata: any = {};
     let imageUrl = "";
     let properties: any[] = [];
 
-    if (nftInfo.metadata.length > 0) {
+    if (nftInfo.metadata && nftInfo.metadata.length > 0) {
       try {
         const metadataString = Buffer.from(nftInfo.metadata).toString("utf8");
         
@@ -90,7 +92,7 @@ router.get("/hedera/:tokenId/:serialNumber?", async (req, res, next) => {
       contractAddress: tokenId,
       tokenStandard: "HIP-412 (HTS)",
       metadata: {
-        ipfsCid: Buffer.from(nftInfo.metadata).toString("utf8"),
+        ipfsCid: nftInfo.metadata ? Buffer.from(nftInfo.metadata).toString("utf8") : "",
         status: "frozen",
       },
       pricing: {
@@ -132,10 +134,10 @@ router.get("/hedera/:tokenId/:serialNumber?", async (req, res, next) => {
       ],
     };
 
-    res.json(nftDetails);
+    return res.json(nftDetails);
   } catch (error: any) {
     console.error("Error fetching Hedera NFT details:", error);
-    next(error);
+    return next(error);
   }
 });
 
@@ -252,10 +254,10 @@ router.get("/ethereum/:tokenId", async (req, res, next) => {
       ],
     };
 
-    res.json(nftDetails);
+    return res.json(nftDetails);
   } catch (error: any) {
     console.error("Error fetching Ethereum NFT details:", error);
-    next(error);
+    return next(error);
   }
 });
 

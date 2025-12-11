@@ -1,7 +1,8 @@
 import { Worker } from "bullmq";
-import { hederaMintQueue } from "../bullmq";
 import { redisConnection } from "../../config/redis";
 import logger from "../../utils/logger";
+import { mintHederaNftToUser } from "../../chains/hedera/mint";
+import { isValidHederaAccountId, normalizeHederaAccountId } from "../../utils/validation";
 
 export const hederaMintWorker = new Worker(
   "hederaMintQueue",
@@ -11,25 +12,35 @@ export const hederaMintWorker = new Worker(
     try {
       const { userAccountId, metadataIpfsUri } = job.data;
 
-      // TODO: Call mintHederaNftToUser
-      // import { mintHederaNftToUser } from "../../chains/hedera/mint";
+      // Validate Hedera account ID
+      if (!isValidHederaAccountId(userAccountId)) {
+        throw new Error(`Invalid Hedera account ID format: ${userAccountId}`);
+      }
+
+      const normalizedAccountId = normalizeHederaAccountId(userAccountId);
+
+      // Execute actual mint operation
+      const result = await mintHederaNftToUser({
+        userAccountId: normalizedAccountId,
+        metadataIpfsUri,
+      });
 
       logger.info(
-        { userAccountId, metadataIpfsUri },
-        "Hedera mint job data received"
+        {
+          jobId: job.id,
+          tokenId: result.tokenId,
+          serialNumber: result.serialNumber,
+        },
+        "Hedera mint job completed successfully"
       );
-
-      // Stub: const result = await mintHederaNftToUser({ userAccountId, metadataIpfsUri });
-
-      logger.info({ jobId: job.id }, "Hedera mint job completed");
 
       return {
         success: true,
-        tokenId: "0.0.stub",
-        serialNumber: 1,
+        tokenId: result.tokenId,
+        serialNumber: result.serialNumber,
       };
-    } catch (error) {
-      logger.error({ jobId: job.id, error }, "Hedera mint job failed");
+    } catch (error: any) {
+      logger.error({ jobId: job.id, error: error.message }, "Hedera mint job failed");
       throw error;
     }
   },

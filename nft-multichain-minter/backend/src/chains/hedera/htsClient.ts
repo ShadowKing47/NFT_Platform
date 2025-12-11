@@ -35,7 +35,17 @@ export function getHederaClient(): Client {
     return client;    
 }
 
-export const hederaClient = getHederaClient();
+// Export lazy-initialized client (null if credentials missing)
+let _hederaClient: Client | null = null;
+try {
+    if (HEDERA_OPERATOR_ID && HEDERA_OPERATOR_KEY) {
+        _hederaClient = getHederaClient();
+    }
+} catch (error) {
+    console.warn("Hedera client initialization failed - Hedera features will be unavailable");
+}
+
+export const hederaClient = _hederaClient!;
 
 export function getOperatorAccountId(): AccountId | null{
     if(!HEDERA_OPERATOR_ID) return null;

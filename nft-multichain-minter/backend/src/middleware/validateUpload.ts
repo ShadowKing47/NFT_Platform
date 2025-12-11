@@ -26,5 +26,5 @@ export const validateUpload = (
     });
   }
 
-  next();
+  return next();
 };

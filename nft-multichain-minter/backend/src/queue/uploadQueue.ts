@@ -19,7 +19,7 @@ export interface FileUploadResult {
 /**
  * Queue for file upload operations
  */
-export const uploadQueue = new Queue<FileUploadJob>("file-upload", {
+export const uploadQueue = new Queue<FileUploadJob>("uploadQueue", {
     connection: redisConnection,
     defaultJobOptions: {
         attempts: 3,
@@ -29,7 +29,6 @@ export const uploadQueue = new Queue<FileUploadJob>("file-upload", {
         },
         removeOnComplete: 100,
         removeOnFail: 50,
-        timeout: 120000, // 2 minute timeout for large file uploads
     },
 });
 

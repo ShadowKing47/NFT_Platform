@@ -1,0 +1,1 @@
+{"version":3,"file":"rateLimiterPerChain.d.ts","sourceRoot":"","sources":["../../src/middleware/rateLimiterPerChain.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAoB1D,eAAO,MAAM,mBAAmB,GAAI,OAAO,UAAU,GAAG,QAAQ,MAChD,KAAK,OAAO,EAAE,KAAK,QAAQ,EAAE,MAAM,YAAY,uDA8B9D,CAAC"}

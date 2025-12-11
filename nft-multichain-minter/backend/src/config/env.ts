@@ -55,8 +55,8 @@ function loadConfig(): AppConfig {
         hederaNetwork: process.env.HEDERA_NETWORK || "testnet",
         
         // Authentication
-        jwtSecret: process.env.JWT_SECRET || "your-secret-key-change-in-production",
-        jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
+        jwtSecret: process.env.JWT_SECRET || "",
+        jwtExpiresIn: process.env.JWT_EXPIRES_IN || "2h",
         
         // Redis
         redisUrl: process.env.REDIS_URL || "redis://localhost:6379",
@@ -80,7 +80,11 @@ export function validateConfig(config: AppConfig): void {
     
     // Critical validations
     if (!config.nftStorageApiKey) {
-        errors.push("NFT_STORAGE_API_KEY is required");
+        if (config.nodeEnv === "production") {
+            errors.push("NFT_STORAGE_API_KEY is required in production");
+        } else {
+            console.warn("NFT_STORAGE_API_KEY not set - IPFS uploads will not work");
+        }
     }
     
     if (!config.ethRpcUrl) {
@@ -99,8 +103,17 @@ export function validateConfig(config: AppConfig): void {
         errors.push("REDIS_URL is required");
     }
     
-    if (config.jwtSecret === "your-secret-key-change-in-production" && config.nodeEnv === "production") {
-        errors.push("JWT_SECRET must be set in production");
+    // Strict JWT secret validation
+    if (!config.jwtSecret) {
+        errors.push("JWT_SECRET is required and must be set");
+    } else if (config.jwtSecret.length < 32) {
+        errors.push("JWT_SECRET must be at least 32 characters long for security");
+    }
+    
+    if (config.nodeEnv === "production") {
+        if (config.jwtSecret.length < 64) {
+            console.warn("WARNING: JWT_SECRET should be at least 64 characters in production");
+        }
     }
     
     if (errors.length > 0) {

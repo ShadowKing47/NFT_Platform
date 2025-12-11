@@ -22,6 +22,7 @@ export function useAuth() {
     chain: null,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Initialize from localStorage
@@ -38,6 +39,8 @@ export function useAuth() {
         chain: chain || null,
       });
     }
+    
+    setIsInitializing(false);
 
     // Listen for logout events
     const handleLogout = () => {
@@ -122,8 +125,7 @@ export function useAuth() {
       const message = `Sign this message to authenticate: ${nonce}`;
       const signature = await signMessageHedera(
         message,
-        accountId,
-        hederaWallet.hashconnect
+        hederaWallet
       );
 
       // Verify and get JWT
@@ -169,6 +171,7 @@ export function useAuth() {
   return {
     ...authState,
     isLoading,
+    isInitializing,
     error,
     loginEthereum,
     loginHedera,

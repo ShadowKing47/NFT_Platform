@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 const MAX_NAME_LENGTH = 100;
 const MAX_DESCRIPTION_LENGTH = 1000;
+const MAX_METADATA_SIZE = 500 * 1024; // 500KB max metadata size
 
 export const validateMetadata = (
   req: Request,
@@ -9,6 +10,14 @@ export const validateMetadata = (
   next: NextFunction
 ) => {
   const { name, description, attributes } = req.body;
+
+  // Check total request body size
+  const bodySize = JSON.stringify(req.body).length;
+  if (bodySize > MAX_METADATA_SIZE) {
+    return res.status(400).json({
+      error: `Metadata size exceeds maximum allowed (${MAX_METADATA_SIZE} bytes)`,
+    });
+  }
 
   if (!name || typeof name !== "string") {
     return res.status(400).json({ error: "Name is required and must be a string" });
@@ -45,5 +54,5 @@ export const validateMetadata = (
     }
   }
 
-  next();
+  return next();
 };
