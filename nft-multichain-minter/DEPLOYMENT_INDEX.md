@@ -2,7 +2,7 @@
 
 Quick reference to all deployment-related files in this project.
 
-## Documentation Files
+## Documentation Files  
 
 | File | Size | Purpose | Audience |
 |------|------|---------|----------|
