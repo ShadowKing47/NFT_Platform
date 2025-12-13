@@ -207,24 +207,36 @@ Workers are structured for expansion:
 ## Environment Variables
 
 ### Backend (.env)
-```
+
+For development, copy `.env.example` to `.env` and configure:
+
+```bash
 PORT=8000
 NODE_ENV=development
 REDIS_URL=redis://localhost:6379
 JWT_SECRET=your_secret_key
-PINATA_API_KEY=your_pinata_key
-PINATA_SECRET_KEY=your_pinata_secret
+NFT_STORAGE_API_KEY=your_nft_storage_key
+ETH_RPC_URL=https://sepolia.infura.io/v3/YOUR_ID
+ETH_CONTRACT_ADDRESS=0x...
 HEDERA_NETWORK=testnet
 HEDERA_OPERATOR_ID=0.0.xxxxx
 HEDERA_OPERATOR_KEY=your_private_key
 HEDERA_NFT_TOKEN_ID=0.0.xxxxx
+FRONTEND_URL=http://localhost:3000
 ```
 
+For production, see [.env.production.example](./backend/.env.production.example)
+
 ### Frontend (.env.local)
-```
+
+For development:
+```bash
 NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_ETH_CONTRACT_ADDRESS=0x...
+NEXT_PUBLIC_CHAIN_ENV=sepolia
+NEXT_PUBLIC_ETH_CHAIN_ID=11155111
 ```
+
+For production, see [.env.production.example](./frontend/.env.production.example)
 
 ## Testing
 
@@ -242,16 +254,36 @@ npm test
 
 ## Deployment
 
-### Backend
-- Deploy to VPS, AWS, or similar
-- Ensure Redis is accessible
-- Set production environment variables
-- Use PM2 or similar for process management
+### Quick Start
 
-### Frontend
-- Deploy to Vercel (recommended for Next.js)
-- Or build static: `npm run build && npm start`
-- Configure environment variables in deployment platform
+For fastest deployment to production:
+
+📖 **[Quick Start Guide](./DEPLOYMENT_QUICK_START.md)** - Get deployed in ~15 minutes
+
+### Complete Documentation
+
+For comprehensive deployment instructions with troubleshooting and best practices:
+
+📚 **[Full Deployment Guide](./DEPLOYMENT.md)** - Detailed Railway + Vercel setup  
+✅ **[Deployment Checklist](./DEPLOYMENT_CHECKLIST.md)** - Pre/post-deployment verification
+
+### Architecture
+
+- **Backend**: Railway (with separate worker service for queue processing)
+- **Frontend**: Vercel (optimized for Next.js)
+- **Redis**: Railway Redis (queue and rate limiting)
+- **Storage**: NFT.Storage (IPFS for NFT assets and metadata)
+
+### Production Scripts
+
+Backend production scripts available in [package.json](./backend/package.json):
+```bash
+npm run build              # Compile TypeScript
+npm run start:prod         # Start production API server
+npm run start:worker:prod  # Start production queue worker
+```
+
+Frontend deployment handled automatically by Vercel on push to main branch
 
 ## License
 
