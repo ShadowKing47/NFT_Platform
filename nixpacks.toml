@@ -1,0 +1,17 @@
+[phases.setup]
+nixPkgs = ["nodejs-18_x"]
+
+[phases.install]
+cmds = [
+  "cd nft-multichain-minter/backend",
+  "npm ci"
+]
+
+[phases.build]
+cmds = [
+  "cd nft-multichain-minter/backend",
+  "npm run build"
+]
+
+[start]
+cmd = "cd nft-multichain-minter/backend && npm run start:prod"
